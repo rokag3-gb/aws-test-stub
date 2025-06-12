@@ -1,6 +1,6 @@
-# AWS Organization Reader
+# AWS Test Stub
 
-AWS Organization의 구조를 가져오는 Python 스크립트입니다.
+AWS Organization를 비롯하여 AWS와 연동 테스트를 해보는 간단한 Python 스크립트입니다.
 
 ## 설치 방법
 
