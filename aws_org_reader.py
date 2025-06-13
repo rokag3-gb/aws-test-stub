@@ -4,22 +4,25 @@ import json
 from typing import Dict, List, Any
 
 class AWSOrgReader:
-    def __init__(self, role_arn: str, session_name: str, region: str = 'ap-northeast-2'):
+    def __init__(self, role_arn: str, session_name: str, external_id: str, region: str = 'ap-northeast-2'):
         # STS 클라이언트 생성
         sts_client = boto3.client('sts')
         
         # 역할 가정
-        response = sts_client.assume_role(
+        assumed_role = sts_client.assume_role(
             RoleArn=role_arn,
-            RoleSessionName=session_name
+            RoleSessionName=session_name,
+            ExternalId=external_id
         )
-        
+
+        credentials = assumed_role['Credentials']
+
         # 임시 자격 증명으로 organizations 클라이언트 생성
         self.client = boto3.client(
             'organizations',
-            aws_access_key_id=response['Credentials']['AccessKeyId'],
-            aws_secret_access_key=response['Credentials']['SecretAccessKey'],
-            aws_session_token=response['Credentials']['SessionToken'],
+            aws_access_key_id=credentials['AccessKeyId'],
+            aws_secret_access_key=credentials['SecretAccessKey'],
+            aws_session_token=credentials['SessionToken'],
             region_name=region
         )
 
@@ -87,11 +90,12 @@ def main():
     parser = argparse.ArgumentParser(description='AWS Organization 구조를 가져오는 스크립트')
     parser.add_argument('--role-arn', required=True, help='AWS Role ARN')
     parser.add_argument('--session-name', required=True, help='Session Name for STS')
+    parser.add_argument('--external-id', required=True, help='External ID for STS')
     parser.add_argument('--region', default='ap-northeast-2', help='AWS Region (기본값: ap-northeast-2)')
     
     args = parser.parse_args()
 
-    reader = AWSOrgReader(args.role_arn, args.session_name, args.region)
+    reader = AWSOrgReader(args.role_arn, args.session_name, args.external_id, args.region)
     org_structure = reader.get_org_structure()
     
     # 결과를 JSON 형식으로 출력
