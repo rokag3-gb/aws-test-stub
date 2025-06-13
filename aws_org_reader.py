@@ -2,11 +2,44 @@ import boto3
 import argparse
 import json
 from typing import Dict, List, Any
+import configparser
+import os
+from datetime import datetime
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
 
 class AWSOrgReader:
-    def __init__(self, role_arn: str, session_name: str, external_id: str, region: str = 'ap-northeast-2'):
+    def __init__(self, role_arn: str, session_name: str, external_id: str, region: str = 'ap-northeast-2', profile_name: str = 'cmp-sts-user'):
+        # AWS 자격 증명 파일에서 프로필 읽기
+        config = configparser.ConfigParser()
+        credentials_path = os.path.join(os.getcwd(), '.aws', 'credentials')
+        
+        # 디버깅을 위한 파일 경로 출력
+        #print(f"자격 증명 파일 경로: {credentials_path}")
+        #print(f"파일 존재 여부: {os.path.exists(credentials_path)}")
+        
+        if not os.path.exists(credentials_path):
+            raise ValueError(f"자격 증명 파일을 찾을 수 없습니다: {credentials_path}")
+            
+        config.read(credentials_path)
+        
+        # 디버깅을 위한 프로필 목록 출력
+        #print(f"사용 가능한 프로필: {config.sections()}")
+        
+        if profile_name not in config:
+            raise ValueError(f"프로필 '{profile_name}'을(를) .aws/credentials 파일에서 찾을 수 없습니다.")
+            
         # STS 클라이언트 생성
-        sts_client = boto3.client('sts')
+        sts_client = boto3.client(
+            'sts',
+            aws_access_key_id=config[profile_name]['aws_access_key_id'],
+            aws_secret_access_key=config[profile_name]['aws_secret_access_key'],
+            region_name=region
+        )
         
         # 역할 가정
         assumed_role = sts_client.assume_role(
@@ -63,6 +96,7 @@ class AWSOrgReader:
 
         # 루트 정보 가져오기
         roots = self.get_roots()
+        #print(f"roots={roots}")
         org_structure['roots'] = roots
 
         # 각 루트에 대해 OU와 계정 정보 수집
@@ -92,14 +126,15 @@ def main():
     parser.add_argument('--session-name', required=True, help='Session Name for STS')
     parser.add_argument('--external-id', required=True, help='External ID for STS')
     parser.add_argument('--region', default='ap-northeast-2', help='AWS Region (기본값: ap-northeast-2)')
+    parser.add_argument('--profile', default='cmp-sts-user', help='AWS Credentials 프로필 이름 (기본값: cmp-sts-user)')
     
     args = parser.parse_args()
 
-    reader = AWSOrgReader(args.role_arn, args.session_name, args.external_id, args.region)
+    reader = AWSOrgReader(args.role_arn, args.session_name, args.external_id, args.region, args.profile)
     org_structure = reader.get_org_structure()
     
-    # 결과를 JSON 형식으로 출력
-    print(json.dumps(org_structure, indent=2, ensure_ascii=False))
+    # 결과를 JSON 형식으로 출력 (DateTimeEncoder 사용)
+    print(json.dumps(org_structure, indent=2, ensure_ascii=False, cls=DateTimeEncoder))
 
 if __name__ == '__main__':
     main() 
