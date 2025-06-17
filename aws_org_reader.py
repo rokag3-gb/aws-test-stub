@@ -119,22 +119,3 @@ class AWSOrgReader:
         # 각 OU에 대해 재귀적으로 정보 수집
         for ou in ous:
             self._collect_ou_and_accounts(ou['Id'], org_structure)
-
-def main():
-    parser = argparse.ArgumentParser(description='AWS Organization 구조를 가져오는 스크립트')
-    parser.add_argument('--role-arn', required=True, help='AWS Role ARN')
-    parser.add_argument('--session-name', required=True, help='Session Name for STS')
-    parser.add_argument('--external-id', required=True, help='External ID for STS')
-    parser.add_argument('--region', default='ap-northeast-2', help='AWS Region (기본값: ap-northeast-2)')
-    parser.add_argument('--profile', default='cmp-sts-user', help='AWS Credentials 프로필 이름 (기본값: cmp-sts-user)')
-    
-    args = parser.parse_args()
-
-    reader = AWSOrgReader(args.role_arn, args.session_name, args.external_id, args.region, args.profile)
-    org_structure = reader.get_org_structure()
-    
-    # 결과를 JSON 형식으로 출력 (DateTimeEncoder 사용)
-    print(json.dumps(org_structure, indent=2, ensure_ascii=False, cls=DateTimeEncoder))
-
-if __name__ == '__main__':
-    main() 

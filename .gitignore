@@ -34,6 +34,9 @@ coverage/
 tmp/
 temp/
 
+# Python cache
+__pycache__/
+
 # AWS
 .aws/
 aws-exports.js
