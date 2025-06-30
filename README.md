@@ -40,7 +40,7 @@ python main.py --role-arn ROLE_ARN --session-name SESSION_NAME --external-id EXT
 AWS Budgets API를 사용하여 예산 정보를 조회할 수 있습니다:
 
 ```bash
-python test_budget.py --role-arn ROLE_ARN --session-name SESSION_NAME --external-id EXTERNAL_ID [--region REGION] [--profile PROFILE] [--account-id ACCOUNT_ID] [--budget-name BUDGET_NAME] [--output OUTPUT_FILE]
+python test_budget.py --role-arn ROLE_ARN --session-name SESSION_NAME --external-id EXTERNAL_ID --account-id ACCOUNT_ID [--region REGION] [--profile PROFILE] [--budget-name BUDGET_NAME] [--output OUTPUT_FILE]
 ```
 
 #### 매개변수
@@ -48,9 +48,9 @@ python test_budget.py --role-arn ROLE_ARN --session-name SESSION_NAME --external
 - `--role-arn`: AWS Role ARN (필수)
 - `--session-name`: STS 세션 이름 (필수)
 - `--external-id`: External ID for STS (필수)
+- `--account-id`: AWS 계정 ID (필수)
 - `--region`: AWS Region (선택, 기본값: ap-northeast-2)
 - `--profile`: AWS Credentials 프로필 이름 (선택, 기본값: cmp-sts-user)
-- `--account-id`: 특정 계정 ID (선택)
 - `--budget-name`: 특정 예산 이름 (선택)
 - `--output`: 결과를 저장할 JSON 파일 경로 (선택)
 

@@ -51,14 +51,10 @@ class AWSBudgetReader:
             region_name=region
         )
 
-    def describe_budgets(self, account_id: str = None) -> List[Dict[str, Any]]:
+    def describe_budgets(self, account_id: str) -> List[Dict[str, Any]]:
         """예산 목록을 조회합니다."""
         try:
-            if account_id:
-                response = self.client.describe_budgets(AccountId=account_id)
-            else:
-                response = self.client.describe_budgets()
-            
+            response = self.client.describe_budgets(AccountId=account_id)
             return response.get('Budgets', [])
         except Exception as e:
             print(f"예산 목록 조회 중 오류 발생: {str(e)}")

@@ -9,7 +9,7 @@ def main():
     parser.add_argument('--external-id', required=True, help='External ID for STS')
     parser.add_argument('--region', default='ap-northeast-2', help='AWS Region (기본값: ap-northeast-2)')
     parser.add_argument('--profile', default='cmp-sts-user', help='AWS Credentials 프로필 이름 (기본값: cmp-sts-user)')
-    parser.add_argument('--account-id', help='특정 계정 ID (선택사항)')
+    parser.add_argument('--account-id', required=True, help='AWS 계정 ID (필수)')
     parser.add_argument('--budget-name', help='특정 예산 이름 (선택사항)')
     parser.add_argument('--output', help='결과를 저장할 JSON 파일 경로 (지정하지 않으면 stdout으로 출력)')
     
